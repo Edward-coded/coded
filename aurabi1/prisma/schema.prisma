@@ -1,0 +1,70 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum SubscriptionStatus {
+  FREE_TRIAL
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model User {
+  id             String             @id @default(cuid())
+  email          String             @unique
+  password       String
+  name           String?
+  businessName   String?
+  industry       String?
+  location       String?
+  teamSize       String?
+  revenueRange   String?
+  goal           String?
+  subscription   SubscriptionStatus @default(FREE_TRIAL)
+  trialStart     DateTime?
+  trialEnd       DateTime?
+  healthScore    Float?
+  deepDiveCount  Int                @default(0)
+  role           Role               @default(USER)
+  deepDives      DeepDive[]
+  chatSessions   ChatSession[]
+  actionPlans    ActionPlan[]
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+}
+
+model DeepDive {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  competitorUrl String
+  analysis    Json
+  createdAt   DateTime @default(now())
+}
+
+model ChatSession {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  messages  Json
+  createdAt DateTime @default(now())
+}
+
+model ActionPlan {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tasks      Json
+  date       DateTime
+  completed  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
